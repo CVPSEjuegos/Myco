@@ -3,14 +3,73 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Hyphaeon - Prototipo</title>
+<title>Hyphaeon - Menú</title>
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<div id="hud">
-  Energía: <span id="energy">0</span> | Nivel: <span id="level">1</span>
+<div id="menu">
+  <h1>Hyphaeon</h1>
+  <button id="playBtn">Jugar</button>
+  <button id="instructionsBtn">Instrucciones</button>
+  <button id="creditsBtn">Créditos</button>
 </div>
-<canvas id="gameCanvas" width="800" height="600"></canvas>
+
+<div id="instructions" class="hidden">
+  <h2>Instrucciones</h2>
+  <ul>
+    <li>Mover: Flechas o WASD</li>
+    <li>Comer partículas para crecer</li>
+    <li>Infectar hosts para ganar energía extra</li>
+    <li>Evoluciona con energía suficiente</li>
+  </ul>
+  <button id="backBtn1">Volver al menú</button>
+</div>
+
+<div id="credits" class="hidden">
+  <h2>Créditos</h2>
+  <p>Juego desarrollado por: Tu Nombre</p>
+  <p>Publicación en GitHub: <a href="#" target="_blank">Hyphaeon Repo</a></p>
+  <button id="backBtn2">Volver al menú</button>
+</div>
+
+<div id="gameContainer" class="hidden">
+  <div id="hud">
+    Energía: <span id="energy">0</span> | Nivel: <span id="level">1</span>
+  </div>
+  <canvas id="gameCanvas" width="800" height="600"></canvas>
+</div>
+
 <script src="game.js"></script>
+<script>
+const menu = document.getElementById('menu');
+const instructions = document.getElementById('instructions');
+const credits = document.getElementById('credits');
+const gameContainer = document.getElementById('gameContainer');
+
+document.getElementById('playBtn').onclick = () => {
+  menu.classList.add('hidden');
+  gameContainer.classList.remove('hidden');
+};
+
+document.getElementById('instructionsBtn').onclick = () => {
+  menu.classList.add('hidden');
+  instructions.classList.remove('hidden');
+};
+
+document.getElementById('creditsBtn').onclick = () => {
+  menu.classList.add('hidden');
+  credits.classList.remove('hidden');
+};
+
+document.getElementById('backBtn1').onclick = () => {
+  instructions.classList.add('hidden');
+  menu.classList.remove('hidden');
+};
+
+document.getElementById('backBtn2').onclick = () => {
+  credits.classList.add('hidden');
+  menu.classList.remove('hidden');
+};
+</script>
 </body>
 </html>
