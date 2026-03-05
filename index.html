@@ -14,6 +14,7 @@
   <button id="playBtn">Jugar</button>
   <button id="instructionsBtn">Instrucciones</button>
   <button id="creditsBtn">Créditos</button>
+  <button id="termsBtn">Términos y Licencia</button>
 </div>
 
 <!-- Instrucciones -->
@@ -37,6 +38,39 @@
   <button id="backBtn2">Volver al menú</button>
 </div>
 
+<!-- Términos y Licencia -->
+<div id="license" class="hidden">
+  <h2>Términos y Licencia</h2>
+  <pre>
+BSD 2-Clause License
+
+Copyright (c) 2026, CVPSEjuegos
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:
+
+1. Redistributions of source code must retain the above copyright notice, this
+   list of conditions and the following disclaimer.
+
+2. Redistributions in binary form must reproduce the above copyright notice,
+   this list of conditions and the following disclaimer in the documentation
+   and/or other materials provided with the distribution.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+INTERRUPTION) HOWEVER CAUSED ON ANY THEORY OF LIABILITY, WHETHER IN
+CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+POSSIBILITY OF SUCH DAMAGE.
+  </pre>
+  <button id="backBtn3">Volver al menú</button>
+</div>
+
 <!-- Contenedor del Juego -->
 <div id="gameContainer" class="hidden">
   <div id="hud">
@@ -50,12 +84,13 @@
 const menu = document.getElementById('menu');
 const instructions = document.getElementById('instructions');
 const credits = document.getElementById('credits');
+const license = document.getElementById('license');
 const gameContainer = document.getElementById('gameContainer');
 
 document.getElementById('playBtn').onclick = () => {
   menu.classList.add('hidden');
   gameContainer.classList.remove('hidden');
-  startAnimation(); // inicia animación inicial del hongo
+  startAnimation();
 };
 
 document.getElementById('instructionsBtn').onclick = () => {
@@ -68,13 +103,21 @@ document.getElementById('creditsBtn').onclick = () => {
   credits.classList.remove('hidden');
 };
 
+document.getElementById('termsBtn').onclick = () => {
+  menu.classList.add('hidden');
+  license.classList.remove('hidden');
+};
+
 document.getElementById('backBtn1').onclick = () => {
   instructions.classList.add('hidden');
   menu.classList.remove('hidden');
 };
-
 document.getElementById('backBtn2').onclick = () => {
   credits.classList.add('hidden');
+  menu.classList.remove('hidden');
+};
+document.getElementById('backBtn3').onclick = () => {
+  license.classList.add('hidden');
   menu.classList.remove('hidden');
 };
 </script>
