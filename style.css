@@ -41,9 +41,26 @@ button:hover {
   display: none;
 }
 
-#menu, #instructions, #credits {
+#menu, #instructions, #credits, #license {
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
+  width: 80%;
+  max-height: 80%;
+}
+
+#license {
+  background-color: #222;
+  padding: 20px;
+  border-radius: 15px;
+  overflow-y: auto;
+  text-align: left;
+}
+
+#license pre {
+  white-space: pre-wrap;
+  font-family: monospace;
+  font-size: 14px;
+  color: #fff;
 }
