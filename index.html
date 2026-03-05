@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hyphaeon - Prototipo</title>
+<style>
+  body {
+    margin: 0;
+    background: #111;
+    color: #fff;
+    font-family: sans-serif;
+    overflow: hidden;
+  }
+  canvas {
+    display: block;
+    background: linear-gradient(#111, #222);
+    margin: 0 auto;
+  }
+  #hud {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    font-size: 18px;
+  }
+</style>
+</head>
+<body>
+<div id="hud">Energía: <span id="energy">0</span></div>
+<canvas id="gameCanvas" width="800" height="600"></canvas>
+
+<script>
+const canvas = document.getElementById('gameCanvas');
+const ctx = canvas.getContext('2d');
+
+let player = {
+  x: 400,
+  y: 300,
+  size: 15,
+  speed: 3,
+  energy: 0
+};
+
+let keys = {};
+let particles = [];
+
+// Crear partículas de comida aleatorias
+function spawnParticles(count) {
+  for (let i = 0; i < count; i++) {
+    particles.push({
+      x: Math.random() * canvas.width,
+      y: Math.random() * canvas.height,
+      size: 5 + Math.random() * 5
+    });
+  }
+}
+
+// Movimiento del jugador
+document.addEventListener('keydown', e => keys[e.key] = true);
+document.addEventListener('keyup', e => keys[e.key] = false);
+
+// Dibujar jugador
+function drawPlayer() {
+  ctx.beginPath();
+  ctx.arc(player.x, player.y, player.size, 0, Math.PI * 2);
+  ctx.fillStyle = '#8FBC8F';
+  ctx.fill();
+}
+
+// Dibujar partículas
+function drawParticles() {
+  ctx.fillStyle = '#FFD700';
+  particles.forEach(p => {
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+    ctx.fill();
+  });
+}
+
+// Colisión jugador-partícula
+function checkCollision() {
+  particles = particles.filter(p => {
+    const dx = player.x - p.x;
+    const dy = player.y - p.y;
+    const distance = Math.sqrt(dx*dx + dy*dy);
+    if (distance < player.size + p.size) {
+      player.energy += 1;
+      document.getElementById('energy').innerText = player.energy;
+      player.size = 15 + player.energy * 0.5; // Crecimiento del jugador
+      return false; // eliminar partícula
+    }
+    return true;
+  });
+}
+
+// Actualizar posición del jugador
+function updatePlayer() {
+  if (keys['ArrowUp'] || keys['w']) player.y -= player.speed;
+  if (keys['ArrowDown'] || keys['s']) player.y += player.speed;
+  if (keys['ArrowLeft'] || keys['a']) player.x -= player.speed;
+  if (keys['ArrowRight'] || keys['d']) player.x += player.speed;
+
+  // Limites del canvas
+  player.x = Math.max(player.size, Math.min(canvas.width - player.size, player.x));
+  player.y = Math.max(player.size, Math.min(canvas.height - player.size, player.y));
+}
+
+// Evolución básica
+function checkEvolution() {
+  if (player.energy >= 20) {
+    player.color = '#FF4500'; // cambia de color al evolucionar
+  }
+}
+
+// Loop principal
+function gameLoop() {
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  updatePlayer();
+  drawParticles();
+  drawPlayer();
+  checkCollision();
+  checkEvolution();
+  requestAnimationFrame(gameLoop);
+}
+
+// Iniciar juego
+spawnParticles(30);
+gameLoop();
+</script>
+</body>
+</html>
