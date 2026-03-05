@@ -1,0 +1,21 @@
+body {
+  margin: 0;
+  background: #111;
+  color: #fff;
+  font-family: sans-serif;
+  overflow: hidden;
+}
+
+canvas {
+  display: block;
+  background: linear-gradient(#111, #222);
+  margin: 0 auto;
+  border: 2px solid #555;
+}
+
+#hud {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  font-size: 18px;
+}
