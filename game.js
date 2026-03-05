@@ -1,6 +1,7 @@
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 
+// ---- Jugador / parásito ----
 let player = {
   x: 400,
   y: 300,
@@ -11,132 +12,222 @@ let player = {
   color: '#8FBC8F'
 };
 
-let keys = {};
-let particles = [];
-let hosts = []; // humanos u animales infectables
+// ---- Especies y Niveles ----
+const levels = [
+  {name: "Ratón", energyRequired: 50, organsCount: 6},
+  {name: "Conejo", energyRequired: 150, organsCount: 8},
+  {name: "Humano", energyRequired: 400, organsCount: 12},
+  {name: "Depredador Final", energyRequired: 1000, organsCount: 16}
+];
 
-// Eventos de teclado
+let currentLevel = 0;
+let currentSpecies = levels[currentLevel].name;
+
+// ---- Movimiento ----
+let keys = {};
 document.addEventListener('keydown', e => keys[e.key] = true);
 document.addEventListener('keyup', e => keys[e.key] = false);
 
-// Crear partículas de comida
-function spawnParticles(count) {
-  for (let i = 0; i < count; i++) {
-    particles.push({
-      x: Math.random() * canvas.width,
-      y: Math.random() * canvas.height,
-      size: 5 + Math.random() * 5
+// ---- Partículas / Spores ----
+let spores = [];
+let hongo = {x: 100, y: 300};
+let raton = {x: 700, y: 300, size: 60};
+let organs = [];
+
+// ---- Inicializa órganos del ratón ----
+function initOrgans() {
+  organs = [];
+  for(let i=0;i<levels[currentLevel].organsCount;i++){
+    organs.push({
+      x: raton.x + Math.random()*40 - 20,
+      y: raton.y + Math.random()*40 - 20,
+      size: 10 + Math.random()*10,
+      eaten: false
     });
   }
 }
 
-// Crear hosts (humanos/animales)
-function spawnHosts(count) {
-  for (let i = 0; i < count; i++) {
-    hosts.push({
-      x: Math.random() * canvas.width,
-      y: Math.random() * canvas.height,
-      size: 30,
-      infected: false
+// ---- Animación inicial del hongo ----
+function startAnimation() {
+  spores = [];
+  for(let i=0;i<20;i++){
+    spores.push({
+      x: hongo.x,
+      y: hongo.y,
+      vx: (raton.x - hongo.x)/100 + Math.random()*0.5,
+      vy: (raton.y - hongo.y)/100 + Math.random()*0.5,
+      size: 3 + Math.random()*2
     });
   }
+  requestAnimationFrame(animationLoop);
 }
 
-// Dibujar jugador
-function drawPlayer() {
+function animationLoop() {
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+
+  // Dibujar hongo
   ctx.beginPath();
-  ctx.arc(player.x, player.y, player.size, 0, Math.PI * 2);
+  ctx.arc(hongo.x, hongo.y, 30,0,Math.PI*2);
+  ctx.fillStyle = 'red';
+  ctx.fill();
+  // puntos morados
+  for(let i=0;i<10;i++){
+    ctx.beginPath();
+    ctx.arc(hongo.x + Math.random()*20-10, hongo.y + Math.random()*20-10, 5,0,Math.PI*2);
+    ctx.fillStyle = 'purple';
+    ctx.fill();
+  }
+
+  // Dibujar ratón
+  ctx.beginPath();
+  ctx.arc(raton.x, raton.y, raton.size,0,Math.PI*2);
+  ctx.fillStyle = 'brown';
+  ctx.fill();
+
+  // Dibujar spores
+  spores.forEach(s=>{
+    s.x += s.vx;
+    s.y += s.vy;
+    ctx.beginPath();
+    ctx.arc(s.x, s.y, s.size,0,Math.PI*2);
+    ctx.fillStyle = `hsl(${Math.random()*360},80%,50%)`;
+    ctx.fill();
+  });
+
+  // Revisar colisión spores-ratón
+  let infected = spores.some(s=>{
+    let dx = s.x - raton.x;
+    let dy = s.y - raton.y;
+    return Math.sqrt(dx*dx + dy*dy) < raton.size;
+  });
+
+  if(infected){
+    initOrgans(); // iniciar órganos
+    gameLoop(); // empezar juego dentro del ratón
+    return;
+  }
+
+  requestAnimationFrame(animationLoop);
+}
+
+// ---- Dibuja jugador con apéndices ----
+function drawPlayer() {
+  // Cuerpo principal
+  ctx.beginPath();
+  ctx.arc(player.x, player.y, player.size,0,Math.PI*2);
   ctx.fillStyle = player.color;
   ctx.fill();
+
+  // Apéndices
+  let numBlasts = Math.floor(player.energy / 10);
+  for(let i=0;i<numBlasts;i++){
+    let angle = (i/numBlasts)*Math.PI*2 + performance.now()/1000;
+    let length = player.size + 10 + Math.sin(performance.now()/500 + i)*5;
+    let endX = player.x + Math.cos(angle)*length;
+    let endY = player.y + Math.sin(angle)*length;
+    ctx.beginPath();
+    ctx.moveTo(player.x, player.y);
+    ctx.lineTo(endX, endY);
+    ctx.strokeStyle = player.color;
+    ctx.lineWidth = 3;
+    ctx.stroke();
+  }
 }
 
-// Dibujar partículas
-function drawParticles() {
-  ctx.fillStyle = '#FFD700';
-  particles.forEach(p => {
+// ---- Dibuja órganos ----
+function drawOrgans(){
+  organs.forEach(o=>{
     ctx.beginPath();
-    ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+    ctx.arc(o.x, o.y, o.size,0,Math.PI*2);
+    ctx.fillStyle = o.eaten ? player.color : 'pink';
     ctx.fill();
   });
 }
 
-// Dibujar hosts
-function drawHosts() {
-  hosts.forEach(h => {
-    ctx.beginPath();
-    ctx.arc(h.x, h.y, h.size, 0, Math.PI * 2);
-    ctx.fillStyle = h.infected ? '#FF6347' : '#00BFFF';
-    ctx.fill();
-  });
-}
+// ---- Movimiento jugador ----
+function updatePlayer(){
+  if(keys['ArrowUp'] || keys['w']) player.y -= player.speed;
+  if(keys['ArrowDown'] || keys['s']) player.y += player.speed;
+  if(keys['ArrowLeft'] || keys['a']) player.x -= player.speed;
+  if(keys['ArrowRight'] || keys['d']) player.x += player.speed;
 
-// Colisiones con partículas
-function checkParticleCollision() {
-  particles = particles.filter(p => {
-    const dx = player.x - p.x;
-    const dy = player.y - p.y;
-    const distance = Math.sqrt(dx*dx + dy*dy);
-    if (distance < player.size + p.size) {
-      player.energy += 1;
-      document.getElementById('energy').innerText = player.energy;
-      player.size = 15 + player.energy * 0.5; 
-      return false;
-    }
-    return true;
-  });
-}
-
-// Colisiones con hosts
-function checkHostCollision() {
-  hosts.forEach(h => {
-    const dx = player.x - h.x;
-    const dy = player.y - h.y;
-    const distance = Math.sqrt(dx*dx + dy*dy);
-    if (distance < player.size + h.size && !h.infected) {
-      h.infected = true; 
-      player.energy += 5;
-      document.getElementById('energy').innerText = player.energy;
-      evolvePlayer();
-    }
-  });
-}
-
-// Movimiento del jugador
-function updatePlayer() {
-  if (keys['ArrowUp'] || keys['w']) player.y -= player.speed;
-  if (keys['ArrowDown'] || keys['s']) player.y += player.speed;
-  if (keys['ArrowLeft'] || keys['a']) player.x -= player.speed;
-  if (keys['ArrowRight'] || keys['d']) player.x += player.speed;
-
-  // Limites
+  // Limites canvas
   player.x = Math.max(player.size, Math.min(canvas.width - player.size, player.x));
   player.y = Math.max(player.size, Math.min(canvas.height - player.size, player.y));
 }
 
-// Evolución básica
-function evolvePlayer() {
-  const newLevel = Math.floor(player.energy / 20) + 1;
-  if (newLevel > player.level) {
+// ---- Colisión jugador-orgános ----
+function checkOrganCollision(){
+  organs.forEach(o=>{
+    let dx = player.x - o.x;
+    let dy = player.y - o.y;
+    if(!o.eaten && Math.sqrt(dx*dx+dy*dy)<player.size+o.size){
+      o.eaten = true;
+      player.energy += 5;
+      document.getElementById('energy').innerText = player.energy;
+      evolvePlayer();
+      saveGame();
+      checkLevelUp();
+    }
+  });
+}
+
+// ---- Evolución ----
+function evolvePlayer(){
+  let newLevel = Math.floor(player.energy / 20) + 1;
+  if(newLevel > player.level){
     player.level = newLevel;
     document.getElementById('level').innerText = player.level;
-    player.color = `hsl(${Math.random()*360}, 80%, 50%)`; // cambia color para simbolizar evolución
-    player.speed += 0.5; // aumenta velocidad al evolucionar
+    player.color = `hsl(${Math.random()*360},80%,50%)`;
+    player.speed += 0.5;
   }
 }
 
-// Loop principal
-function gameLoop() {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
+// ---- Niveles ----
+function checkLevelUp(){
+  if(currentLevel<levels.length-1 && player.energy >= levels[currentLevel].energyRequired){
+    currentLevel++;
+    currentSpecies = levels[currentLevel].name;
+    document.getElementById('species').innerText = currentSpecies;
+    raton.size += 20; // nuevo huésped más grande
+    player.size = 15; // reset tamaño relativo
+    initOrgans();
+  }
+}
+
+// ---- Guardado ----
+function saveGame(){
+  localStorage.setItem('hyphaeon',JSON.stringify({
+    energy: player.energy,
+    level: currentLevel,
+    species: currentSpecies,
+    size: player.size
+  }));
+}
+
+function loadGame(){
+  const data = JSON.parse(localStorage.getItem('hyphaeon'));
+  if(data){
+    player.energy = data.energy;
+    currentLevel = data.level;
+    currentSpecies = data.species;
+    player.size = data.size;
+    document.getElementById('energy').innerText = player.energy;
+    document.getElementById('level').innerText = player.level;
+    document.getElementById('species').innerText = player.species;
+    initOrgans();
+  }
+}
+
+// ---- Loop del juego ----
+function gameLoop(){
+  ctx.clearRect(0,0,canvas.width,canvas.height);
   updatePlayer();
-  drawParticles();
-  drawHosts();
+  drawOrgans();
   drawPlayer();
-  checkParticleCollision();
-  checkHostCollision();
+  checkOrganCollision();
   requestAnimationFrame(gameLoop);
 }
 
-// Iniciar juego
-spawnParticles(30);
-spawnHosts(5);
-gameLoop();
+// ---- Cargar partida al inicio ----
+loadGame();
