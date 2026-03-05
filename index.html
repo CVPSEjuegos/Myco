@@ -3,10 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Hyphaeon - Menú</title>
+<title>Hyphaeon - Evolución Parasitaria</title>
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
+
+<!-- Menú Principal -->
 <div id="menu">
   <h1>Hyphaeon</h1>
   <button id="playBtn">Jugar</button>
@@ -14,27 +16,31 @@
   <button id="creditsBtn">Créditos</button>
 </div>
 
+<!-- Instrucciones -->
 <div id="instructions" class="hidden">
   <h2>Instrucciones</h2>
   <ul>
     <li>Mover: Flechas o WASD</li>
     <li>Comer partículas para crecer</li>
-    <li>Infectar hosts para ganar energía extra</li>
+    <li>Infectar órganos de hosts</li>
     <li>Evoluciona con energía suficiente</li>
+    <li>Avanza a nuevas especies para desbloquear niveles</li>
   </ul>
   <button id="backBtn1">Volver al menú</button>
 </div>
 
+<!-- Créditos -->
 <div id="credits" class="hidden">
   <h2>Créditos</h2>
   <p>Juego desarrollado por: Tu Nombre</p>
-  <p>Publicación en GitHub: <a href="#" target="_blank">Hyphaeon Repo</a></p>
+  <p>GitHub: <a href="#" target="_blank">Hyphaeon Repo</a></p>
   <button id="backBtn2">Volver al menú</button>
 </div>
 
+<!-- Contenedor del Juego -->
 <div id="gameContainer" class="hidden">
   <div id="hud">
-    Energía: <span id="energy">0</span> | Nivel: <span id="level">1</span>
+    Energía: <span id="energy">0</span> | Nivel: <span id="level">1</span> | Especie: <span id="species">Ratón</span>
   </div>
   <canvas id="gameCanvas" width="800" height="600"></canvas>
 </div>
@@ -49,6 +55,7 @@ const gameContainer = document.getElementById('gameContainer');
 document.getElementById('playBtn').onclick = () => {
   menu.classList.add('hidden');
   gameContainer.classList.remove('hidden');
+  startAnimation(); // inicia animación inicial del hongo
 };
 
 document.getElementById('instructionsBtn').onclick = () => {
