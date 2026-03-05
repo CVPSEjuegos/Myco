@@ -4,6 +4,7 @@ body {
   color: #fff;
   font-family: sans-serif;
   overflow: hidden;
+  text-align: center;
 }
 
 canvas {
@@ -18,4 +19,31 @@ canvas {
   top: 10px;
   left: 10px;
   font-size: 18px;
+}
+
+button {
+  padding: 15px 30px;
+  font-size: 20px;
+  margin: 10px;
+  cursor: pointer;
+  border: none;
+  border-radius: 10px;
+  background-color: #228B22;
+  color: white;
+  transition: 0.3s;
+}
+
+button:hover {
+  background-color: #32CD32;
+}
+
+.hidden {
+  display: none;
+}
+
+#menu, #instructions, #credits {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
 }
